@@ -11,7 +11,9 @@ define([
 ) {
     return {
         // description:
-        //      Handles interaction between app widgets and the  Mostly Layerthrough pub/sub
+        //      Handles interaction between app widgets and the map
+
+        version: '1.0.0',
 
         // handles: Object[]
         //      container to track handles for this object
@@ -29,6 +31,7 @@ define([
             console.info('app.MapController::initialize', arguments);
 
             this.map = map;
+            this.handles = [];
         },
         zoom: function (graphic) {
             // summary:
@@ -105,11 +108,7 @@ define([
             // summary:
             //      destroys all handles
             console.info('app.MapController::destroy', arguments);
-            
-            if (!this.handles) {
-                return;
-            }
-            
+
             this.handles.forEach(function (hand) {
                 hand.remove();
             });
