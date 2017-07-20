@@ -13,7 +13,7 @@ define([
         // description:
         //      Handles interaction between app widgets and the map
 
-        version: '1.0.0',
+        version: '1.0.1',
 
         // handles: Object[]
         //      container to track handles for this object
@@ -57,14 +57,14 @@ define([
 
                     return this._setExtent(new Graphic(multiPoint));
                 }
-            }
 
-            graphic = graphic.reduce(function (a, b) {
-                return a.concat(b);
-            });
+                graphic = graphic.reduce(function (a, b) {
+                    return a.concat(b);
+                });
 
-            if (graphic.length === 0) {
-                return;
+                if (graphic.length === 0) {
+                    return;
+                }
             }
 
             return this._setExtent(graphic);
