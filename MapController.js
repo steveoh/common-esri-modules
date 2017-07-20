@@ -13,7 +13,7 @@ define([
         // description:
         //      Handles interaction between app widgets and the map
 
-        version: '1.0.1',
+        version: '1.1.0',
 
         // handles: Object[]
         //      container to track handles for this object
@@ -22,6 +22,9 @@ define([
         // Properties to be sent into initialize
         map: null,
 
+        // the active layer
+        activeLayer: null,
+        
         zoomLevel: 18,
 
 
@@ -32,6 +35,52 @@ define([
 
             this.map = map;
             this.handles = [];
+        },
+        activateLayer(layer) {
+            // summary:
+            //      activates the layer for other functions
+            // none
+            console.info('app/MapController:activateLayer', arguments);
+
+            if (!layer) {
+                return;
+            }
+
+            this.activeLayer = layer;
+        },
+        filter(field, query, style) {
+            // summary:
+            //      applies a definition query to a layer
+            // field: the field to query
+            // query: the query terms
+            // style: the syntax of query to use
+            console.info('app/MapController:filter', arguments);
+
+            if (!this.activeLayer) {
+                console.warn('There is no active layer set to filter on. MapController.activateLayer(layer);');
+
+                return;
+            }
+
+            this.activeLayer.show();
+
+            if (!query || !field) {
+                console.warn('There is no field or query to filter on.');
+
+                return;
+            }
+
+            var cannedQueries = {
+                number: `${field}=${query}`,
+                string: `UPPER(${field}) LIKE UPPER('%${query}%')`,
+                exact: `UPPER(${field}) = UPPER('${query}')`
+            };
+
+            if (!style) {
+                style = 'string';
+            }
+
+            this.activeLayer.setDefinitionExpression(cannedQueries[style]);
         },
         zoom: function (graphic) {
             // summary:
