@@ -20,6 +20,8 @@ define([
     return {
         // description:
         //      Handles interaction between app widgets and the  Mostly Layerthrough pub/sub
+        
+        version: '1.1.0',
 
         // handles: Object[]
         //      container to track handles for this object
@@ -101,11 +103,12 @@ define([
                     lang.hitch(this, 'removeGraphic'))
             );
         },
-        highlight: function (graphic) {
+        highlight: function (graphic, symbol, additionalProps) {
             // summary:
             //      adds the clicked shape geometry to the graphics layer
             //      highlighting it
             // graphic - esri/Graphic
+            // symbol - esri/symbol/* to overwrite the default
             console.info('app.GraphicsController::highlight', arguments);
 
             if (!graphic) {
@@ -114,29 +117,34 @@ define([
 
             this.removeGraphic(this.graphic);
 
-            var symbol;
-            switch (lang.getObject('geometry.type', false, graphic) || graphic[0].geometry.type) {
-                case 'polygon':
-                    symbol = this.symbols.poly;
-                    break;
-                case 'polyline':
-                    symbol = this.symbols.line;
-                    break;
-                default:
-                    symbol = this.symbols.point;
+            if (!symbol) {
+                switch (lang.getObject('geometry.type', false, graphic) || graphic[0].geometry.type) {
+                    case 'extent':
+                    case 'polygon':
+                        symbol = this.symbols.poly;
+                        break;
+                    case 'polyline':
+                        symbol = this.symbols.line;
+                        break;
+                    default:
+                        symbol = this.symbols.point;
+                }
             }
 
             if (Array.isArray(graphic)) {
                 this.graphic = [];
 
                 graphic.forEach(function (item) {
-                    var g = new Graphic(item.geometry, symbol);
+                    var g = new Graphic(item.geometry, symbol, item.attributes);
+                    lang.mixin(g, additionalProps);
 
                     this.graphic.push(g);
                     this.graphicsLayer.add(g);
                 }, this);
             } else {
                 this.graphic = new Graphic(graphic.geometry, symbol);
+                lang.mixin(this.graphic, additionalProps);
+
                 this.graphicsLayer.add(this.graphic);
             }
         },
